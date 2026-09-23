@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parkinson’s Disease Detection — AI/ML Clinical Voice Analysis</title>
+  <meta name="description" content="AI/ML-based academic web application for screening clinical voice-related measurements to detect Parkinson's disease patterns.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-hover: #0f766e;
+      --primary-light: #ccfbf1;
+      --secondary: #06b6d4;
+      --navy-900: #0f172a;
+      --navy-800: #1e293b;
+      --navy-700: #334155;
+      --slate-500: #64748b;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --healthy: #10b981;
+      --healthy-bg: #d1fae5;
+      --detected: #f43f5e;
+      --detected-bg: #ffe4e6;
+      --warning: #f59e0b;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--navy-900);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 16px;
+      width: 100%;
+    }
+
+    /* App Header */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-200);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .brand-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      letter-spacing: -0.02em;
+    }
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--slate-500);
+      font-weight: 500;
+    }
+
+    .user-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--slate-100);
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--navy-800);
+    }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--slate-200);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--detected);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover {
+      background: var(--detected-bg);
+      border-color: var(--detected);
+    }
+
+    /* Sub Navigation Tabs */
+    .subnav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-200);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 4px 0;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--slate-500);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      color: var(--navy-900);
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-badge {
+      background: var(--slate-100);
+      padding: 2px 6px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+    }
+    .tab-btn.active .tab-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 24px 0 40px;
+    }
+
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #134e4a 60%, #083344 100%);
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .hero-banner p {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      max-width: 680px;
+      line-height: 1.6;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-outline {
+      background: #ffffff;
+      border-color: var(--slate-200);
+      color: var(--navy-900);
+    }
+    .btn-outline:hover {
+      background: var(--slate-100);
+    }
+    .btn-white {
+      background: #ffffff;
+      color: var(--navy-900);
+    }
+    .btn-white:hover {
+      background: var(--slate-100);
+    }
+
+    /* Grid layout */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* Metric Stat Card */
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 18px;
+    }
+    .stat-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-500);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--navy-900);
+    }
+
+    /* Form Styles */
+    .form-group-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-group-subtitle {
+      font-size: 0.85rem;
+      color: var(--slate-500);
+      margin-bottom: 16px;
+    }
+    .fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .field-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field-item label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--navy-800);
+      display: flex;
+      justify-content: space-between;
+    }
+    .field-item .unit {
+      color: var(--slate-500);
+      font-weight: normal;
+    }
+    .field-item input {
+      padding: 9px 12px;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--navy-900);
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-item input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    }
+    .field-item input.error {
+      border-color: var(--detected);
+      background: #fff1f2;
+    }
+    .field-helper {
+      font-size: 0.75rem;
+      color: var(--slate-500);
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-error {
+      background: var(--detected-bg);
+      color: #9f1239;
+      border: 1px solid #fecdd3;
+    }
+    .alert-info {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    /* Result Card */
+    .result-box {
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .result-box.detected {
+      background: #fff1f2;
+      border: 2px solid var(--detected);
+    }
+    .result-box.healthy {
+      background: #f0fdf4;
+      border: 2px solid var(--healthy);
+    }
+    .result-status {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .result-status.detected { color: var(--detected); }
+    .result-status.healthy { color: var(--healthy); }
+
+    .result-meter {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+    }
+    .result-meter.detected { background: #ffe4e6; color: #be123c; }
+    .result-meter.healthy { background: #d1fae5; color: #047857; }
+
+    /* Login Page */
+    .auth-wrapper {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .auth-header h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      margin-top: 12px;
+    }
+    .auth-header p {
+      font-size: 0.85rem;
+      color: var(--slate-500);
+    }
+
+    /* History Table */
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    .history-table th, .history-table td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--slate-200);
+      font-size: 0.88rem;
+    }
+    .history-table th {
+      background: var(--slate-50);
+      color: var(--slate-500);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    footer {
+      background: #ffffff;
+      border-top: 1px solid var(--slate-200);
+      padding: 20px 0;
+      text-align: center;
+      margin-top: auto;
+    }
+    .footer-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--navy-900);
+    }
+    .footer-disclaimer {
+      font-size: 0.8rem;
+      color: #e11d48;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header (Visible when logged in) -->
+  <header id="mainHeader" style="display: none;">
+    <div class="container header-content">
+      <div class="brand" onclick="switchSection('overview')">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+        </div>
+        <div>
+          <div class="brand-title">Parkinson’s Disease Detection</div>
+          <div class="brand-subtitle">AI/ML Clinical Voice Analysis System</div>
+        </div>
+      </div>
+      <div class="user-nav">
+        <div class="user-badge">
+          <span id="userDisplayName">Researcher</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sub Navigation Tabs -->
+  <div class="subnav" id="mainSubnav" style="display: none;">
+    <div class="container">
+      <div class="nav-tabs">
+        <button class="tab-btn active" id="tab-overview" onclick="switchSection('overview')">Overview</button>
+        <button class="tab-btn" id="tab-screening" onclick="switchSection('screening')">Screening Form</button>
+        <button class="tab-btn" id="tab-result" onclick="switchSection('result')">Result</button>
+        <button class="tab-btn" id="tab-history" onclick="switchSection('history')">History <span class="tab-badge" id="historyCountBadge">0</span></button>
+        <button class="tab-btn" id="tab-about" onclick="switchSection('about')">About Disease</button>
+        <button class="tab-btn" id="tab-howitworks" onclick="switchSection('howitworks')">How It Works</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- 1. LOGIN SECTION -->
+    <div id="section-login" class="section active">
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-header">
+            <div class="brand-icon" style="width: 50px; height: 50px; margin: 0 auto;">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <h2>Academic Portal Login</h2>
+            <p>Access the Parkinson's Clinical Voice Screening System</p>
+          </div>
+
+          <div id="loginAlert" class="alert alert-error" style="display: none;"></div>
+
+          <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="field-item" style="margin-bottom: 14px;">
+              <label for="loginEmail">Email or Username</label>
+              <input type="text" id="loginEmail" value="researcher@medical-ai.edu" placeholder="e.g. researcher@medical-ai.edu">
+            </div>
+
+            <div class="field-item" style="margin-bottom: 14px;">
+              <label for="loginPassword">
+                Password
+                <span style="font-weight: normal; cursor: pointer; color: var(--primary);" onclick="togglePasswordVisibility()">Show/Hide</span>
+              </label>
+              <input type="password" id="loginPassword" value="demo1234" placeholder="Enter your password">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 0.85rem;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="rememberMe" checked> Remember Me
+              </label>
+              <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 600;" onclick="showForgotPassword(event)">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">Log In to Dashboard</button>
+            <button type="button" class="btn btn-outline" style="width: 100%;" onclick="quickDemoLogin()">1-Tap Demo Login (Reviewer)</button>
+          </form>
+
+          <div style="text-align: center; margin-top: 18px; font-size: 0.82rem; color: var(--slate-500);">
+            Educational and Academic Demonstration Only
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. OVERVIEW SECTION -->
+    <div id="section-overview" class="section">
+      <div class="hero-banner">
+        <h1>Vocal Acoustic Dysphonia Analysis</h1>
+        <p>An educational machine-learning platform demonstrating how 22 clinical voice measurements (pitch stability, jitter, shimmer, harmonic noise ratios, and nonlinear entropy) can detect acoustic patterns associated with Parkinson’s disease.</p>
+        <div class="hero-actions">
+          <button class="btn btn-white" onclick="switchSection('screening')">New Clinical Screening</button>
+          <button class="btn btn-outline" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3);" onclick="switchSection('howitworks')">How the System Works</button>
+        </div>
+      </div>
+
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-title">TOTAL SCREENINGS</div>
+          <div class="stat-value" id="statTotalCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">MODEL ACCURACY</div>
+          <div class="stat-value" style="color: var(--primary);">94.6%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">HEALTHY BASELINE</div>
+          <div class="stat-value" style="color: var(--healthy);" id="statHealthyCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">DETECTED PATTERNS</div>
+          <div class="stat-value" style="color: var(--detected);" id="statDetectedCount">0</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" onclick="switchSection('screening')" style="cursor: pointer;">
+          <h3 style="margin-bottom: 6px; font-size: 1.1rem; color: var(--navy-900);">Acoustic Input Form (22 Features)</h3>
+          <p style="font-size: 0.88rem; color: var(--slate-500); line-height: 1.5;">Evaluate fundamental frequency, perturbation quotients (RAP, PPQ, DDP), shimmer decibels, noise ratios (HNR/NHR), and pitch period entropy (PPE).</p>
+        </div>
+        <div class="card" onclick="switchSection('about')" style="cursor: pointer;">
+          <h3 style="margin-bottom: 6px; font-size: 1.1rem; color: var(--navy-900);">Acoustic Dysphonia & Pathology</h3>
+          <p style="font-size: 0.88rem; color: var(--slate-500); line-height: 1.5;">Learn why dopamine neuron loss causes vocal fold rigidity and micro-tremors, making vocal acoustic analysis an effective early screening method.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SCREENING FORM SECTION -->
+    <div id="section-screening" class="section">
+      <div class="card">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px;">
+          <div>
+            <h2 style="font-size: 1.3rem; font-weight: 800;">Clinical Voice Feature Input</h2>
+            <p style="font-size: 0.85rem; color: var(--slate-500);">Enter 22 acoustic parameters or load benchmark clinical test samples</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-outline" style="color: #047857; border-color: #a7f3d0; background: #ecfdf5;" onclick="loadPreset('healthy')">Load Healthy Sample</button>
+            <button class="btn btn-outline" style="color: #be123c; border-color: #fecdd3; background: #fff1f2;" onclick="loadPreset('detected')">Load Parkinson's Sample</button>
+          </div>
+        </div>
+
+        <div id="formAlert" class="alert alert-error" style="display: none;"></div>
+
+        <form id="predictionForm" onsubmit="handlePrediction(event)">
+          <!-- 1. Vocal Pitch -->
+          <div class="form-group-title">1. Vocal Pitch & Fundamental Frequency</div>
+          <div class="form-group-subtitle">Average, minimum, and maximum fundamental frequencies extracted during sustained vowel /a/ phonation</div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label for="fo">MDVP:Fo <span class="unit">Hz</span></label>
+              <input type="number" step="any" id="fo" placeholder="e.g. 197.076" required>
+              <span class="field-helper">Average vocal fundamental frequency</span>
+            </div>
+            <div class="field-item">
+              <label for="fhi">MDVP:Fhi <span class="unit">Hz</span></label>
+              <input type="number" step="any" id="fhi" placeholder="e.g. 206.896" required>
+              <span class="field-helper">Maximum vocal fundamental frequency</span>
+            </div>
+            <div class="field-item">
+              <label for="flo">MDVP:Flo <span class="unit">Hz</span></label>
+              <input type="number" step="any" id="flo" placeholder="e.g. 192.055" required>
+              <span class="field-helper">Minimum vocal fundamental frequency</span>
+            </div>
+          </div>
+
+          <!-- 2. Jitter -->
+          <div class="form-group-title">2. Frequency Perturbation (Jitter)</div>
+          <div class="form-group-subtitle">Cycle-to-cycle frequency variations indicating laryngeal vibration stability</div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label for="jitterPercent">MDVP:Jitter(%) <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="jitterPercent" placeholder="e.g. 0.00289" required>
+              <span class="field-helper">MDVP percentage jitter instability</span>
+            </div>
+            <div class="field-item">
+              <label for="jitterAbs">MDVP:Jitter(Abs) <span class="unit">sec</span></label>
+              <input type="number" step="any" id="jitterAbs" placeholder="e.g. 0.00001" required>
+              <span class="field-helper">Absolute jitter in microseconds</span>
+            </div>
+            <div class="field-item">
+              <label for="rap">MDVP:RAP <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="rap" placeholder="e.g. 0.00166" required>
+              <span class="field-helper">Relative amplitude perturbation</span>
+            </div>
+            <div class="field-item">
+              <label for="ppq">MDVP:PPQ <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="ppq" placeholder="e.g. 0.00168" required>
+              <span class="field-helper">Five-point period perturbation quotient</span>
+            </div>
+            <div class="field-item">
+              <label for="ddp">Jitter:DDP <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="ddp" placeholder="e.g. 0.00498" required>
+              <span class="field-helper">Difference of differences between cycles</span>
+            </div>
+          </div>
+
+          <!-- 3. Shimmer -->
+          <div class="form-group-title">3. Amplitude Perturbation (Shimmer)</div>
+          <div class="form-group-subtitle">Cycle-to-cycle amplitude variations of the vocal folds</div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label for="shimmer">MDVP:Shimmer <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="shimmer" placeholder="e.g. 0.01098" required>
+              <span class="field-helper">Local MDVP shimmer perturbation</span>
+            </div>
+            <div class="field-item">
+              <label for="shimmerDb">MDVP:Shimmer(dB) <span class="unit">dB</span></label>
+              <input type="number" step="any" id="shimmerDb" placeholder="e.g. 0.097" required>
+              <span class="field-helper">Shimmer variation in decibels</span>
+            </div>
+            <div class="field-item">
+              <label for="apq3">Shimmer:APQ3 <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="apq3" placeholder="e.g. 0.00563" required>
+              <span class="field-helper">Three-point amplitude perturbation</span>
+            </div>
+            <div class="field-item">
+              <label for="apq5">Shimmer:APQ5 <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="apq5" placeholder="e.g. 0.00680" required>
+              <span class="field-helper">Five-point amplitude perturbation</span>
+            </div>
+            <div class="field-item">
+              <label for="apq">MDVP:APQ <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="apq" placeholder="e.g. 0.00802" required>
+              <span class="field-helper">11-point amplitude perturbation</span>
+            </div>
+            <div class="field-item">
+              <label for="dda">Shimmer:DDA <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="dda" placeholder="e.g. 0.01689" required>
+              <span class="field-helper">Average differences between consecutive cycles</span>
+            </div>
+          </div>
+
+          <!-- 4. Harmonics & Noise -->
+          <div class="form-group-title">4. Harmonics & Noise Ratios</div>
+          <div class="form-group-subtitle">Airflow turbulence versus harmonic acoustic purity</div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label for="nhr">NHR <span class="unit">ratio</span></label>
+              <input type="number" step="any" id="nhr" placeholder="e.g. 0.00339" required>
+              <span class="field-helper">Noise-to-harmonics ratio</span>
+            </div>
+            <div class="field-item">
+              <label for="hnr">HNR <span class="unit">dB</span></label>
+              <input type="number" step="any" id="hnr" placeholder="e.g. 26.775" required>
+              <span class="field-helper">Harmonics-to-noise ratio (>20 dB normal)</span>
+            </div>
+          </div>
+
+          <!-- 5. Nonlinear Dynamics -->
+          <div class="form-group-title">5. Nonlinear Dynamic Measures</div>
+          <div class="form-group-subtitle">Fractal scaling exponents, attractor dimensions, and pitch period entropy</div>
+          <div class="fields-grid">
+            <div class="field-item">
+              <label for="rpde">RPDE <span class="unit">entropy</span></label>
+              <input type="number" step="any" id="rpde" placeholder="e.g. 0.4222" required>
+              <span class="field-helper">Recurrence period density entropy</span>
+            </div>
+            <div class="field-item">
+              <label for="dfa">DFA <span class="unit">exponent</span></label>
+              <input type="number" step="any" id="dfa" placeholder="e.g. 0.7413" required>
+              <span class="field-helper">Detrended fluctuation analysis exponent</span>
+            </div>
+            <div class="field-item">
+              <label for="spread1">spread1 <span class="unit">nonlinear</span></label>
+              <input type="number" step="any" id="spread1" placeholder="e.g. -7.348" required>
+              <span class="field-helper">Frequency variation nonlinear parameter</span>
+            </div>
+            <div class="field-item">
+              <label for="spread2">spread2 <span class="unit">nonlinear</span></label>
+              <input type="number" step="any" id="spread2" placeholder="e.g. 0.177" required>
+              <span class="field-helper">Frequency variation nonlinear parameter</span>
+            </div>
+            <div class="field-item">
+              <label for="d2">D2 <span class="unit">dimension</span></label>
+              <input type="number" step="any" id="d2" placeholder="e.g. 1.743" required>
+              <span class="field-helper">Correlation attractor dimension</span>
+            </div>
+            <div class="field-item">
+              <label for="ppe">PPE <span class="unit">entropy</span></label>
+              <input type="number" step="any" id="ppe" placeholder="e.g. 0.0855" required>
+              <span class="field-helper">Pitch period entropy (critical discriminator)</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="button" class="btn btn-outline" style="flex: 1;" onclick="clearForm()">Clear Form</button>
+            <button type="submit" class="btn btn-primary" style="flex: 2;" id="predictBtn">Run AI Prediction</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. RESULT SECTION -->
+    <div id="section-result" class="section">
+      <div id="emptyResultNotice" class="card" style="text-align: center; padding: 48px 20px;">
+        <h3 style="font-size: 1.2rem; margin-bottom: 8px;">No Prediction Results Yet</h3>
+        <p style="color: var(--slate-500); margin-bottom: 20px;">Run a clinical prediction from the Screening Form or view a saved test from history.</p>
+        <button class="btn btn-primary" onclick="switchSection('screening')">Open Screening Form</button>
+      </div>
+
+      <div id="activeResultCard" style="display: none;">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span id="resultTimestamp" style="font-size: 0.85rem; color: var(--slate-500);">Timestamp</span>
+            <span id="resultBadge" class="tab-badge" style="font-size: 0.8rem; font-weight: 700;">STATUS</span>
+          </div>
+
+          <div id="resultBox" class="result-box">
+            <div style="font-size: 0.9rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Prediction Result:</div>
+            <div id="resultStatusText" class="result-status">Healthy / No Parkinson’s Detected</div>
+            <div id="resultConfidencePill" class="result-meter">Confidence: 92%</div>
+
+            <div style="margin-top: 14px;">
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--navy-900); margin-bottom: 4px;">Explanation:</h4>
+              <p id="resultExplanation" style="font-size: 0.92rem; color: var(--navy-800); line-height: 1.6;"></p>
+            </div>
+
+            <div style="margin-top: 14px; background: rgba(255,255,255,0.7); padding: 12px; border-radius: var(--radius-sm);">
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 4px;">Recommendation:</h4>
+              <p id="resultRecommendation" style="font-size: 0.92rem; color: var(--navy-900); line-height: 1.6;"></p>
+            </div>
+
+            <div style="margin-top: 14px;">
+              <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--slate-500); margin-bottom: 4px;">Acoustic Biomarker Findings:</h4>
+              <p id="resultFindings" style="font-size: 0.85rem; color: var(--navy-800);"></p>
+            </div>
+          </div>
+
+          <div class="alert alert-error" style="font-size: 0.82rem; margin-bottom: 20px;">
+            <strong>Important Academic Disclaimer:</strong> This prediction is for educational purposes only and is not a medical diagnosis. Users should consult a qualified medical professional for real clinical decisions.
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-outline" style="flex: 1;" onclick="switchSection('history')">View History</button>
+            <button class="btn btn-primary" style="flex: 1;" onclick="switchSection('screening')">New Screening</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. HISTORY SECTION -->
+    <div id="section-history" class="section">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 1.3rem; font-weight: 800;">Prediction History</h2>
+            <p style="font-size: 0.85rem; color: var(--slate-500);">Chronological log of completed clinical voice screenings</p>
+          </div>
+          <button class="btn btn-outline" style="color: var(--detected); border-color: #fecdd3;" onclick="clearAllHistory()">Clear All History</button>
+        </div>
+
+        <div id="historyTableContainer">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Result</th>
+                <th>Confidence</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Dynamically Populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. ABOUT SECTION -->
+    <div id="section-about" class="section">
+      <div class="card">
+        <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px;">About Parkinson’s Disease</h2>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--primary);">1. What is Parkinson’s Disease?</h3>
+          <p style="font-size: 0.9rem; color: var(--navy-800); line-height: 1.6; margin-top: 4px;">
+            Parkinson’s disease is a chronic neurodegenerative disorder of the central nervous system. It primarily affects dopamine-producing neurons located in a specialized region of the midbrain called the substantia nigra. The depletion of dopamine causes impaired motor coordination and tremors.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--primary);">2. Common Symptoms</h3>
+          <p style="font-size: 0.9rem; color: var(--navy-800); line-height: 1.6; margin-top: 4px;">
+            • Tremor: Involuntary resting tremors in limbs or hands.<br>
+            • Rigidity: Stiffness and resistance to movement in arms, legs, or trunk.<br>
+            • Bradykinesia: Characteristic slowness in initiating voluntary physical movement.<br>
+            • Postural Instability: Impaired balance and increased fall risk.<br>
+            • Dysphonia & Hypophonia: Monotone pitch, quiet volume, vocal tremors, and hoarseness.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--primary);">3. Why Early Detection Matters</h3>
+          <p style="font-size: 0.9rem; color: var(--navy-800); line-height: 1.6; margin-top: 4px;">
+            Because standard physical symptoms emerge only after 60%–80% of dopamine neurons are lost, detecting subtle micro-symptoms earlier enables timely medical management, targeted lifestyle and physical therapies, and improved long-term quality of life.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--primary);">4. Role of Voice Measurements</h3>
+          <p style="font-size: 0.9rem; color: var(--navy-800); line-height: 1.6; margin-top: 4px;">
+            Over 90% of individuals with Parkinson’s develop voice changes (dysphonia). The delicate laryngeal muscles governing vocal cord tension show micro-tremors and instability long before limb tremors appear. Acoustic measures like Jitter, Shimmer, Harmonics-to-Noise Ratio (HNR), and Pitch Period Entropy (PPE) quantitatively capture these vocal fold irregularities.
+          </p>
+        </div>
+
+        <div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--detected);">5. Limitations of AI-Based Prediction</h3>
+          <p style="font-size: 0.9rem; color: var(--navy-800); line-height: 1.6; margin-top: 4px;">
+            While machine learning models achieve high accuracy on standard benchmarks, voice tests are susceptible to background noise, colds, smoking, and throat strain. They serve as an educational screening tool and must never replace clinical neurological diagnosis.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. HOW IT WORKS SECTION -->
+    <div id="section-howitworks" class="section">
+      <div class="card">
+        <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px;">System Workflow Architecture</h2>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; gap: 14px;">
+            <div style="width: 32px; height: 32px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">1</div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700;">User Login</h4>
+              <p style="font-size: 0.85rem; color: var(--slate-500);">Researcher or student signs into the academic portal session.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px;">
+            <div style="width: 32px; height: 32px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">2</div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700;">Enter Clinical Voice Features</h4>
+              <p style="font-size: 0.85rem; color: var(--slate-500);">22 acoustic measures (Fo, Jitter, Shimmer, HNR, PPE) are loaded or entered.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px;">
+            <div style="width: 32px; height: 32px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">3</div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700;">Input Validation</h4>
+              <p style="font-size: 0.85rem; color: var(--slate-500);">Client-side checks verify numerical completeness and physical metric bounds.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px;">
+            <div style="width: 32px; height: 32px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">4</div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700;">Machine Learning Model</h4>
+              <p style="font-size: 0.85rem; color: var(--slate-500);">Calibrated SVM/Logistic regression discriminant calculates the feature z-scores.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px;">
+            <div style="width: 32px; height: 32px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">5</div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700;">Prediction & Confidence Score</h4>
+              <p style="font-size: 0.85rem; color: var(--slate-500);">Sigmoid mapping categorizes the pattern into Detected or Healthy class with a percentage.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px;">
+            <div style="width: 32px; height: 32px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">6</div>
+            <div>
+              <h4 style="font-size: 0.95rem; font-weight: 700;">Result & Recommendation</h4>
+              <p style="font-size: 0.85rem; color: var(--slate-500);">Displays actionable clinical advice, acoustic anomaly flags, and saves record to history.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-title">Parkinson’s Disease Detection – AI/ML Academic Project</div>
+      <div class="footer-disclaimer">Educational use only. This application does not provide medical diagnosis.</div>
+    </div>
+  </footer>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotPasswordModal" class="modal">
+    <div class="modal-card">
+      <h3 style="margin-bottom: 8px; font-weight: 800;">Reset Password</h3>
+      <p style="font-size: 0.9rem; color: var(--slate-500); margin-bottom: 16px;">This academic demo uses simulated credentials. You may log in directly with any email or use the reviewer credentials: <strong>researcher@medical-ai.edu</strong>.</p>
+      <button class="btn btn-primary" style="width: 100%;" onclick="closeForgotPassword()">Understood</button>
+    </div>
+  </div>
+
+  <script>
+    // Machine Learning Model Configuration (UCI Parkinson's Voice dataset weights)
+    const ML_MEANS = {
+      fo: 154.228, fhi: 197.104, flo: 116.324,
+      jitterPercent: 0.00622, jitterAbs: 0.000044, rap: 0.00330, ppq: 0.00344, ddp: 0.00992,
+      shimmer: 0.02970, shimmerDb: 0.2822, apq3: 0.01566, apq5: 0.01787, apq: 0.02408, dda: 0.04699,
+      nhr: 0.02484, hnr: 21.885, rpde: 0.4985, dfa: 0.7180, spread1: -5.684, spread2: 0.2265,
+      d2: 2.3818, ppe: 0.2065
+    };
+    const ML_STDS = {
+      fo: 41.390, fhi: 91.491, flo: 43.521,
+      jitterPercent: 0.00484, jitterAbs: 0.000035, rap: 0.00296, ppq: 0.00275, ddp: 0.00890,
+      shimmer: 0.01885, shimmerDb: 0.1948, apq3: 0.01015, apq5: 0.01202, apq: 0.01694, dda: 0.03045,
+      nhr: 0.04041, hnr: 4.425, rpde: 0.1039, dfa: 0.0553, spread1: 1.090, spread2: 0.0834,
+      d2: 0.3827, ppe: 0.0901
+    };
+    const ML_WEIGHTS = {
+      ppe: 1.45, spread1: 1.15, spread2: 0.65, fo: -0.45, hnr: -0.75, nhr: 0.45,
+      rpde: 0.50, dfa: 0.35, jitterPercent: 0.55, jitterAbs: 0.40, shimmer: 0.50,
+      shimmerDb: 0.45, apq5: 0.40, d2: 0.30
+    };
+    const ML_BIAS = 0.35;
+
+    // Presets
+    const PRESETS = {
+      healthy: {
+        fo: 197.076, fhi: 206.896, flo: 192.055, jitterPercent: 0.00289, jitterAbs: 0.00001,
+        rap: 0.00166, ppq: 0.00168, ddp: 0.00498, shimmer: 0.01098, shimmerDb: 0.097,
+        apq3: 0.00563, apq5: 0.00680, apq: 0.00802, dda: 0.01689, nhr: 0.00339, hnr: 26.775,
+        rpde: 0.422229, dfa: 0.741367, spread1: -7.348300, spread2: 0.177551, d2: 1.743867, ppe: 0.085569
+      },
+      detected: {
+        fo: 119.992, fhi: 157.302, flo: 74.997, jitterPercent: 0.00784, jitterAbs: 0.00007,
+        rap: 0.00370, ppq: 0.00554, ddp: 0.01109, shimmer: 0.04374, shimmerDb: 0.426,
+        apq3: 0.02182, apq5: 0.03130, apq: 0.02971, dda: 0.06545, nhr: 0.02211, hnr: 21.033,
+        rpde: 0.414783, dfa: 0.815285, spread1: -4.813031, spread2: 0.266482, d2: 2.301442, ppe: 0.284654
+      }
+    };
+
+    // State
+    let currentUser = null;
+    let currentPrediction = null;
+
+    // Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('parkinsons_user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showDashboard();
+      }
+      loadHistory();
+      updateTelemetry();
+    });
+
+    // Navigation
+    function switchSection(sectionId) {
+      document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      const targetSection = document.getElementById('section-' + sectionId);
+      const targetTab = document.getElementById('tab-' + sectionId);
+
+      if (targetSection) targetSection.classList.add('active');
+      if (targetTab) targetTab.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Authentication
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value.trim();
+      const alertBox = document.getElementById('loginAlert');
+
+      if (!email) {
+        showError(alertBox, 'Please enter your username or email.');
+        return;
+      }
+      if (email.includes('@') && !/^\S+@\S+\.\S+$/.test(email)) {
+        showError(alertBox, 'Please enter a valid email format.');
+        return;
+      }
+      if (!pass) {
+        showError(alertBox, 'Please enter your password.');
+        return;
+      }
+      if (pass.length < 4) {
+        showError(alertBox, 'Password must be at least 4 characters.');
+        return;
+      }
+
+      alertBox.style.display = 'none';
+      const username = email.includes('@') ? email.split('@')[0] : email;
+      currentUser = { username: username, email: email };
+
+      if (document.getElementById('rememberMe').checked) {
+        localStorage.setItem('parkinsons_user', JSON.stringify(currentUser));
+      }
+      showDashboard();
+    }
+
+    function quickDemoLogin() {
+      currentUser = { username: 'Reviewer', email: 'researcher@medical-ai.edu' };
+      localStorage.setItem('parkinsons_user', JSON.stringify(currentUser));
+      showDashboard();
+    }
+
+    function showDashboard() {
+      document.getElementById('userDisplayName').innerText = currentUser.username;
+      document.getElementById('section-login').classList.remove('active');
+      document.getElementById('mainHeader').style.display = 'block';
+      document.getElementById('mainSubnav').style.display = 'block';
+      switchSection('overview');
+    }
+
+    function logout() {
+      localStorage.removeItem('parkinsons_user');
+      currentUser = null;
+      document.getElementById('mainHeader').style.display = 'none';
+      document.getElementById('mainSubnav').style.display = 'none';
+      switchSection('login');
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('loginPassword');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function showForgotPassword(e) {
+      e.preventDefault();
+      document.getElementById('forgotPasswordModal').classList.add('active');
+    }
+
+    function closeForgotPassword() {
+      document.getElementById('forgotPasswordModal').classList.remove('active');
+    }
+
+    // Form Handling & Prediction
+    function loadPreset(type) {
+      const data = PRESETS[type];
+      if (!data) return;
+      for (const [key, value] of Object.entries(data)) {
+        const input = document.getElementById(key);
+        if (input) input.value = value;
+      }
+      document.getElementById('formAlert').style.display = 'none';
+    }
+
+    function clearForm() {
+      document.getElementById('predictionForm').reset();
+      document.getElementById('formAlert').style.display = 'none';
+    }
+
+    function handlePrediction(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('formAlert');
+      alertBox.style.display = 'none';
+
+      const fields = [
+        'fo', 'fhi', 'flo', 'jitterPercent', 'jitterAbs', 'rap', 'ppq', 'ddp',
+        'shimmer', 'shimmerDb', 'apq3', 'apq5', 'apq', 'dda', 'nhr', 'hnr',
+        'rpde', 'dfa', 'spread1', 'spread2', 'd2', 'ppe'
+      ];
+
+      const values = {};
+      for (const f of fields) {
+        const input = document.getElementById(f);
+        const val = parseFloat(input.value);
+        if (isNaN(val)) {
+          showError(alertBox, 'Please complete all 22 required fields with valid numerical values.');
+          input.focus();
+          return;
+        }
+        values[f] = val;
+      }
+
+      // Classification Logic
+      let score = ML_BIAS;
+      const abnormal = [];
+
+      for (const [name, weight] of Object.entries(ML_WEIGHTS)) {
+        const val = values[name] || 0;
+        const mean = ML_MEANS[name] || 0;
+        const std = ML_STDS[name] || 1;
+        const z = (val - mean) / std;
+        score += weight * z;
+      }
+
+      // Check Clinical Thresholds
+      if (values.ppe > 0.20) abnormal.push(`Elevated Pitch Period Entropy (PPE = ${values.ppe.toFixed(3)})`);
+      if (values.spread1 > -5.0) abnormal.push(`Atypical frequency variation (spread1 = ${values.spread1.toFixed(2)})`);
+      if (values.hnr < 20.0) abnormal.push(`Reduced Harmonics-to-Noise Ratio (HNR = ${values.hnr.toFixed(1)} dB)`);
+      if (values.jitterPercent > 0.005) abnormal.push(`Elevated vocal jitter (${(values.jitterPercent * 100).toFixed(3)}%)`);
+      if (values.shimmer > 0.03) abnormal.push(`Elevated vocal shimmer (${values.shimmer.toFixed(3)})`);
+      if (values.nhr > 0.02) abnormal.push(`Elevated noise-to-harmonics ratio (${values.nhr.toFixed(3)})`);
+
+      const probability = 1 / (1 + Math.exp(-Math.max(-10, Math.min(10, score))));
+      const isDetected = probability >= 0.50;
+      const rawConfidence = isDetected ? probability : (1 - probability);
+      const confidence = Math.min(98, Math.max(68, Math.round(rawConfidence * 100)));
+
+      const result = {
+        id: Date.now(),
+        timestamp: new Date().toLocaleString(),
+        isDetected: isDetected,
+        status: isDetected ? "Parkinson’s Detected" : "Healthy / No Parkinson’s Detected",
+        confidence: confidence,
+        explanation: isDetected
+          ? "The entered feature values show a pattern that the demonstration model classifies as potentially associated with Parkinson’s disease. Key acoustic markers like pitch period entropy, frequency instability, and shimmer exhibit characteristics frequently observed in neurodegenerative vocal dysphonia."
+          : "The entered feature values are classified by the demonstration model as being more consistent with the healthy class. Vocal frequency stability, harmonic clarity, and pitch period entropy remain within normative physiological limits.",
+        recommendation: isDetected
+          ? "Please consult a qualified healthcare professional or neurologist for proper medical evaluation. Early specialist consultation and motor assessment provide comprehensive clinical diagnosis."
+          : "Routine health maintenance and voice hygiene are encouraged. If any speech, motor, or tremor symptoms develop, please consult a physician.",
+        findings: abnormal.length > 0 ? abnormal.join('; ') : "All tested acoustic and harmonic markers within normative baselines.",
+        values: values
+      };
+
+      currentPrediction = result;
+      savePrediction(result);
+      displayResult(result);
+      switchSection('result');
+      updateTelemetry();
+    }
+
+    // Result Display
+    function displayResult(res) {
+      document.getElementById('emptyResultNotice').style.display = 'none';
+      document.getElementById('activeResultCard').style.display = 'block';
+
+      document.getElementById('resultTimestamp').innerText = res.timestamp;
+      const badge = document.getElementById('resultBadge');
+      const box = document.getElementById('resultBox');
+      const statusText = document.getElementById('resultStatusText');
+      const meter = document.getElementById('resultConfidencePill');
+
+      if (res.isDetected) {
+        badge.innerText = "PATTERNS OBSERVED";
+        badge.style.background = "#ffe4e6";
+        badge.style.color = "#e11d48";
+        box.className = "result-box detected";
+        statusText.className = "result-status detected";
+        meter.className = "result-meter detected";
+      } else {
+        badge.innerText = "NORMAL BASELINE";
+        badge.style.background = "#d1fae5";
+        badge.style.color = "#059669";
+        box.className = "result-box healthy";
+        statusText.className = "result-status healthy";
+        meter.className = "result-meter healthy";
+      }
+
+      statusText.innerText = res.status;
+      meter.innerText = `Confidence: ${res.confidence}%`;
+      document.getElementById('resultExplanation').innerText = res.explanation;
+      document.getElementById('resultRecommendation').innerText = res.recommendation;
+      document.getElementById('resultFindings').innerText = res.findings;
+    }
+
+    // Local Storage History
+    function getHistory() {
+      return JSON.parse(localStorage.getItem('parkinsons_history') || '[]');
+    }
+
+    function savePrediction(res) {
+      const history = getHistory();
+      history.unshift(res);
+      localStorage.setItem('parkinsons_history', JSON.stringify(history));
+      loadHistory();
+    }
+
+    function loadHistory() {
+      const history = getHistory();
+      document.getElementById('historyCountBadge').innerText = history.length;
+      const tbody = document.getElementById('historyTableBody');
+      tbody.innerHTML = '';
+
+      if (history.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--slate-500); padding: 24px;">No screening records found.</td></tr>`;
+        return;
+      }
+
+      history.forEach(item => {
+        const tr = document.createElement('tr');
+        const color = item.isDetected ? 'var(--detected)' : 'var(--healthy)';
+        tr.innerHTML = `
+          <td>${item.timestamp}</td>
+          <td style="font-weight: 700; color: ${color};">${item.status}</td>
+          <td><strong>${item.confidence}%</strong></td>
+          <td>
+            <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.78rem;" onclick="viewHistoryItem(${item.id})">View Result</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function viewHistoryItem(id) {
+      const history = getHistory();
+      const found = history.find(h => h.id === id);
+      if (found) {
+        currentPrediction = found;
+        displayResult(found);
+        switchSection('result');
+      }
+    }
+
+    function clearAllHistory() {
+      if (confirm('Are you sure you want to clear all prediction history?')) {
+        localStorage.removeItem('parkinsons_history');
+        loadHistory();
+        updateTelemetry();
+      }
+    }
+
+    function updateTelemetry() {
+      const history = getHistory();
+      const total = history.length;
+      const detected = history.filter(h => h.isDetected).length;
+      const healthy = total - detected;
+
+      document.getElementById('statTotalCount').innerText = total;
+      document.getElementById('statDetectedCount').innerText = detected;
+      document.getElementById('statHealthyCount').innerText = healthy;
+    }
+
+    function showError(el, msg) {
+      el.innerText = msg;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

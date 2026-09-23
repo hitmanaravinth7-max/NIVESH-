@@ -1,0 +1,19 @@
+{
+  "name": "parkinsons-disease-detection",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Parkinson's Disease Detection – AI/ML Academic Project",
+  "scripts": {
+    "start": "npx -y serve .",
+    "dev": "npx -y serve .",
+    "build": "node -e \"console.log('Production build ready for Vercel deployment.')\""
+  },
+  "keywords": [
+    "parkinsons-disease",
+    "machine-learning",
+    "clinical-voice-analysis",
+    "healthcare-ai"
+  ],
+  "author": "Academic AI Researcher",
+  "license": "MIT"
+}
