@@ -1,0 +1,6 @@
+{
+  "name": "Parkinson's Detection",
+  "description": "AI/ML-based clinical voice measurement analysis for academic Parkinson's disease detection and screening demonstration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
